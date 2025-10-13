@@ -1,0 +1,1 @@
+#Dataclass file for holding configuration of items
