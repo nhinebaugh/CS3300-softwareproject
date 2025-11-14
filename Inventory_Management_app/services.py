@@ -1,7 +1,7 @@
 #services file allowing us to recieve issue and things like that.
 from typing import Any, Dict, List, Optional
-from db import get_connection
-from dao import ItemDAO
+from Inventory_Management_app.db import get_connection
+from Inventory_Management_app.dao import ItemDAO
 
 class InventoryService:
     def _generate_sku(self) -> str:
