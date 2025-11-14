@@ -1,24 +1,20 @@
 #this will be the SQLite conection.
 import sqlite3
+from.schema import SCHEMA_SQL
 from contextlib import contextmanager
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent /"data" / "inventory.db"
-SCHEMA_PATH = Path(__file__).parent /"schema.sql"
+BASE_DIR = Path(__file__).resolve().parent
 
-def initialize_db():
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("PRAGMA foreign_keys = ON;")
-        schema = SCHEMA_PATH.read_text()
-        conn.executescript(schema)
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(exist_ok=True)
+
+DB_PATH = DATA_DIR / "inventory.db"
 
 @contextmanager
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
     try:
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON;")
         yield conn
         conn.commit()
     except Exception:
@@ -26,3 +22,9 @@ def get_connection():
         raise
     finally:
         conn.close()
+
+def initialize_db() -> None:
+    
+    with get_connection() as conn:
+        conn.executescript(SCHEMA_SQL)
+        
