@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List, Optional
 from pathlib import Path
-from db import get_connection
+from Inventory_Management_app.db import get_connection
 
 def _rowdict(row) -> Dict[str, Any]:
     return dict(row) if row is not None else None
@@ -41,8 +41,9 @@ class ItemDAO:
         query = "Select * from items where 1=1"
         params: List[Any] = []
         if name_like:
-            query += " and name like ?"
-            params.append(f"%{name_like}%")
+            term = f"%{name_like.strip()}%"
+            query += " and (name like ? collate nocase or sku like ? collate nocase or barcode like?)"
+            params += [term, term, term]
         if only_active:
             query += " and active=1"
         query += " order by name collate nocase"
