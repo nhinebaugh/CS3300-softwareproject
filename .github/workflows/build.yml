@@ -34,7 +34,7 @@ jobs:
         pyinstaller -F -w -n InventoryManager Inventory_Management_app/run_app.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: InventoryManager-${{ matrix.os }}
         path: dist/*
