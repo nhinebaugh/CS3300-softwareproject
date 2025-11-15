@@ -2,9 +2,9 @@ name: Build Inventory Manager
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "Inventory_app" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "Inventory_app" ]
   workflow_dispatch:
 
 jobs:
