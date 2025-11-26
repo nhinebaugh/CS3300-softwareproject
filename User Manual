@@ -1,1 +1,64 @@
-Manual for user to learn the program.
+Inventory Management System User Manual
+
+Ver: 1.0
+
+Platforms: Windows(.exe), MacOS(.app), and Linux(Binary)
+
+database used: SQLite
+
+1. Introduction:
+	This system is a lightweight, locally-run application used for small to medium sized companies to maintain accurate stock levels. Requires no internet connection and stores all data on the local system.
+
+2. System Requirements:
+	Windows: Windows 10 or later, 64-bit
+	MacOS: macOS 12 or later.
+	Linux: Ubuntu 20.04 or later
+
+3. Install and setup:
+	Follow instructions in Download instructions pdf in main.
+	
+	To run: 
+		Windows: Double-Click the .exe
+		MacOS: double click or in terminal type ./InventoryManager
+		Linux: in terminal run chmod +x InventoryManager then ./InventoryManager
+
+4. upon first launch the application will automatically create a data/ folder and inventory.db file
+
+5. Overview of Application
+	Search bar, New Item button, table view, as well as Receive/Issue/Refresh buttons
+
+6. Using the system:
+	6.1: Adding New item;
+		Click New Item, Enter a name, SKU number, Item price, Minimum Quantity, and a Barcode Id if you have one, then save. *Note: Price, Quantity, and minimum need to be numbers.*
+	6.2: Searching;
+		Type desired Name or SKU and press enter, program will return any matching items.
+	6.3: Receiving items;
+		Select the desired item, click receive, enter a quantity, and any notes needed, then hit enter or commit.
+	6.4: Issuing;
+		Select the desired item, click issue, enter quantity to be issued, add any notes or comments, then hit enter or commit. *note: cannot over issue or go into negative stock.* 
+	6.5: Editing items;
+		Will be implemented in future iterations.
+	6.6: Deleting items; 
+		Will be implemented in future iterations.
+
+7. Low Stock indications:
+	Will be light red when below indicated minimum stock.
+
+8. Export to CSV:
+	Click File, Export to CSV.
+
+9. Database Location & Backup:
+	Database: data/inventory.db
+	Backup: Click file backup database, back up will be created in same location as the application
+
+10. Troubleshooting: 
+	MacOS: block run due to unknown publisher, Select run anyway.
+	Insufficient Stock: User is trying to over issue. Either issue less or receive more.
+	Locked Database: User has more than one instance of the application running.
+	Missing data error when trying to run: data folder may have been moved or deleted. 
+
+11. Known limitations:
+	Single-user only, No barcode scanner capabilities, MacOS requires permissions.
+
+12. Contact/Support.
+	Contact through GitHub and one of the developers will reach out. Please include as much information as possible.
