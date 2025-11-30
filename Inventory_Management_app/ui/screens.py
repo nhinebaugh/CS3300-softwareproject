@@ -189,7 +189,7 @@ class ItemDialog(tk.Toplevel):
                 "barcode": self.var_barcode.get().strip() or None,
             }
             if self.item_id:
-                self.service.update_item(self.item_id, data)
+                self.service.update_items(self.item_id, data)
             else:
                 self.service.create_item(data)
 
@@ -234,6 +234,7 @@ class AdjustDialog(tk.Toplevel):
         ttk.Label(r, text=label, width=14).pack(side=tk.LEFT)
         ttk.Entry(r, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
     #handler for committing the stock adjustment
+
     def on_commit(self):
         try:
             qty = int(self.var_qty.get() or 0)
