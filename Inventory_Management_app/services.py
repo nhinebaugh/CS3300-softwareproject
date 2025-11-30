@@ -95,11 +95,11 @@ class InventoryService:
                 (total, item_id),
             )
 
-    def update_item(self, item_id: int, fields: dict[str, Any]) -> None:
+    def update_items(self, item_id: int, fields: dict[str, Any]) -> None:
         #updates item details
         if not fields:
             return
-        return ItemDAO.update_item(item_id, fields)
+        return ItemDAO.update_items(item_id, fields)
     
     def delete_item(self, item_id: int) -> None:
         #deletes item the inventory permanently
