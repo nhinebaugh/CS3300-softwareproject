@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 LOCAL_TZ = datetime.now().astimezone().tzinfo
 UTC = timezone.utc
-
+#convert ISO timestamp to local timezone string
 def _to_local(ts: str | None) -> str:
     if not ts:
         return ""
@@ -17,7 +17,7 @@ def _to_local(ts: str | None) -> str:
     except Exception:
         return ts
     
-
+#export rows (dicts) to a CSV file
 def export_to_csv(rows: Iterable[Dict], filepath: str) -> None:
     rows = list(rows)
     if not rows:
@@ -27,7 +27,7 @@ def export_to_csv(rows: Iterable[Dict], filepath: str) -> None:
             writer = csv.DictWriter(f, fieldnames=headers)
             writer.writeheader()
         return
-    
+    #determine headers, preferred order first
     preferred = ["id", "sku", "name", "unit_cost", "price", "quantity", "min_quantity", "barcode", "active", "created_at", "updated_at"]
     headers = [h for h in preferred if h in rows[0]]+ [k for k in rows[0].keys() if k not in preferred]
 

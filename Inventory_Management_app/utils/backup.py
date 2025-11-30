@@ -4,6 +4,7 @@ from datetime import datetime
 import zipfile
 from ..db import DB_PATH
 
+#function to back up the database file into a zip archive
 def backup_database(dest_dir: str | None = None) -> str:
     db_path = Path(DB_PATH)
     if not db_path.exists():

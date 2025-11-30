@@ -6,12 +6,12 @@ from .services import InventoryService
 from .ui.screens import InventoryScreen
 from .utils.csv_io import export_to_csv
 from .utils.backup import backup_database
-
+#function to build the menu bar
 def _build_menu(root: tk.Tk, svc: InventoryService, main_screen: InventoryScreen):
     menubar = tk.Menu(root)
     
     file_menu = tk.Menu(menubar, tearoff=0)
-    
+    #function for exporting to CSV
     def do_export_csv():
         rows = svc.list_items(name_like=main_screen.search_var.get(), only_active=True)
         path = filedialog.asksaveasfilename(
@@ -27,7 +27,7 @@ def _build_menu(root: tk.Tk, svc: InventoryService, main_screen: InventoryScreen
             messagebox.showinfo("Export Successful", f"Inventory exported {len(rows)} rows to:\n{path}")
         except Exception as e:
             messagebox.showerror("Export Failed", str(e))
-
+    #function for backing up the database
     def do_backup():
         try:
             zip_path = backup_database()

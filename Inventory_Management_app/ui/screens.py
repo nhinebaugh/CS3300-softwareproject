@@ -7,7 +7,7 @@ from ..services import InventoryService
 from ..dao import ItemDAO
 
 LOW_STOCK = "Low Stock"
-
+#inventory screen class that shows the inventory items in a sinle table with different actions.
 class InventoryScreen(ttk.Frame):
     def __init__(self, master, service: InventoryService):
         super().__init__(master, padding=10)
@@ -59,25 +59,27 @@ class InventoryScreen(ttk.Frame):
 
         self.tree.pack(fill=tk.BOTH, expand=True, pady=8)
 
-        #actions
+        #actions to reveive, issue, refresh, edit, delete
         bottom = ttk.Frame(self)
         bottom.pack(fill=tk.X)
         ttk.Button(bottom, text="Receive", command=lambda: self.adjust(+1)).pack(side=tk.LEFT)
         ttk.Button(bottom, text="Issue", command=lambda: self.adjust(-1)).pack(side=tk.LEFT, padx=6)
         ttk.Button(bottom, text="Refresh", command=self.refresh).pack(side=tk.LEFT)
+        ttk.Button(bottom, text="Edit Item", command=self.edit_item).pack(side=tk.RIGHT)
+        ttk.Button(bottom, text="Delete Item", command=self.delete_item).pack(side=tk.RIGHT, padx=6)
 
         #double click to open issue/receive dialog
         self.tree.bind("<Double-1>", lambda _e: self.adjust(+1))
 
         self.refresh()
-
+    #helper to get selected item id
     def selected_item_id(self) -> Optional[int]:
         sel = self.tree.selection()
         if not sel:
             return None
         values = self.tree.item(sel[0], "values")
         return int(values[0]) #id is first col
-    
+    #refresh the inventory table to ensure latest data
     def refresh(self):
         #clear
         for lid in self.tree.get_children():
@@ -103,7 +105,7 @@ class InventoryScreen(ttk.Frame):
                 tags=tags
             )
 
-    #action handlers
+    #action handlers for buttons such as new item, adjust stock, edit item, delete item
     def new_item(self):
         ItemDialog(self, self.service, on_saved=self.refresh)
 
@@ -113,14 +115,31 @@ class InventoryScreen(ttk.Frame):
             messagebox.showinfo("Select Item", "Please select an item in the table.")
             return
         AdjustDialog(self, self.service, item_id, sign, on_committed=self.refresh)
+    def edit_item(self):
+        item_id = self.selected_item_id()
+        if not item_id:
+            messagebox.showinfo("Select Item", "Please select an item in the inventory to edit.")
+            return
+        ItemDialog(self, self.service, item_id=item_id, on_saved=self.refresh)
 
-#dialogs
+    def delete_item(self):
+        item_id = self.selected_item_id()
+        if not item_id:
+            messagebox.showinfo("Select Item", "Please select an item in the inventory to delete.")
+            return
+        if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete the selected item?"):
+            self.service.delete_item(item_id)
+            self.refresh()
+
+
+#dialogs for adding/editing items and adjusting stock
 class ItemDialog(tk.Toplevel):
-    def __init__(self, master, service: InventoryService, on_saved=None):
+    def __init__(self, master, service: InventoryService, item_id=None, on_saved=None):
         super().__init__(master)
         self.title("New Item")
         self.service = service
         self.on_saved = on_saved
+        self.item_id = item_id
         self.transient(master)
         self.grab_set()
 
@@ -139,19 +158,27 @@ class ItemDialog(tk.Toplevel):
         self._row(body, "Min Qty", self.var_min)
         self._row(body, "Barcode", self.var_barcode)
 
+        if self.item_id:
+            item = ItemDAO.get_item_by_id(self.item_id)
+            self.var_name.set(item["name"])
+            self.var_sku.set(item["sku"])
+            self.var_price.set(str(item["price"]))
+            self.var_min.set(str(item["min_quantity"]))
+            self.var_barcode.set(item.get("barcode") or "")
+
         btns = ttk.Frame(body)
         btns.pack(fill=tk.X, pady=(8,0))
         ttk.Button(btns, text="Save", command=self.on_save).pack(side=tk.RIGHT)
         ttk.Button(btns, text="Cancel", command=self.destroy).pack(side=tk.RIGHT, padx=6)
 
         self.bind("<Return>", lambda e: self.on_save())
-
+    #helper to create a row in the dialog
     def _row(self, parent, label, var):
         r = ttk.Frame(parent)
         r.pack(fill=tk.X, pady=4)
         ttk.Label(r, text=label, width=14).pack(side=tk.LEFT)
         ttk.Entry(r, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
-
+    #handler for saving the item
     def on_save(self):
         try:
             data: Dict[str, Any] = {
@@ -161,13 +188,17 @@ class ItemDialog(tk.Toplevel):
                 "min_quantity": int(self.var_min.get() or 0),
                 "barcode": self.var_barcode.get().strip() or None,
             }
-            new_id = self.service.create_item(data)
+            if self.item_id:
+                self.service.update_item(self.item_id, data)
+            else:
+                self.service.create_item(data)
+
             if self.on_saved:
                 self.on_saved()
             self.destroy()
         except Exception as ex:
             messagebox.showerror("Errored", str(ex))
-
+#Adjust stock dialog for receiving or issuing stock
 class AdjustDialog(tk.Toplevel):
     def __init__(self, master, service: InventoryService, item_id: int, sign: int, on_committed=None):
         super().__init__(master)
@@ -196,13 +227,13 @@ class AdjustDialog(tk.Toplevel):
         ttk.Button(btns, text="Cancel", command=self.destroy).pack(side=tk.RIGHT, padx=6)
 
         self.bind("<Return>", lambda e: self.on_commit())
-
+    #helper to create a row in the dialog
     def _row(self, parent, label, var):
         r = ttk.Frame(parent)
         r.pack(fill=tk.X, pady=4)
         ttk.Label(r, text=label, width=14).pack(side=tk.LEFT)
         ttk.Entry(r, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
-
+    #handler for committing the stock adjustment
     def on_commit(self):
         try:
             qty = int(self.var_qty.get() or 0)
